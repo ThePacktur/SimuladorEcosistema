@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>Simulador Epidemico </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <label for="tasa_infeccion">Tasa de Infección (β):</label>
+        <input type="number" name="tasaInfeccion" step="0.01" required>
+    
+        <label for="tasa_recuperacion">Tasa de Recuperación (γ):</label>
+        <input type="number" name="tasaRecuperacion" step="0.01" required>
+    
+        <label for="poblacion_inicial">Población Inicial:</label>
+        <input type="number" name="poblacionInicial" required>
+    
+        <label for="infectados_inicial">Infectados Iniciales:</label>
+        <input type="number" name="infectadosInicial" required>
+    
+        <label for="tiempo_simulacion">Tiempo de Simulación (días):</label>
+        <input type="number" name="tiempoSimulacion" required>
+    
+        <button type="submit">Iniciar Simulación</button>
+    </form>
+    
+    
+</body>
+</html>
