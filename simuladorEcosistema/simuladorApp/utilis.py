@@ -1,16 +1,29 @@
 import numpy as np
 
-#Este método simularSir devuelve matrices con los valores de S, I, y R a lo largo del tiempo.
-def simularSir(beta,gamma,SO,IO,RO,tiempo):
-    S, I, R = [SO], [IO], [RO] #lista para guardar los resultados en cada paso de tiempo
+def simularSeir(tasaInfeccion, tasaRecuperacion, tasaMortalidad, S0, E0, I0, R0, D0, dias):
+    S, E, I, R, D = [S0], [E0], [I0], [R0], [D0]
+    N = S0 + E0 + I0 + R0 + D0  # Total de la población
 
-    for _ in range(tiempo):
-        nuevo_S = S[-1] - (beta * S[-1] * I[-1])
-        nuevo_I = I[-1] + (beta * S[-1] * I[-1]) - (gamma * I[-1])
-        nuevo_R = R[-1] + (gamma * I[-1])
+    for _ in range(dias):
+        nuevos_expuestos = (tasaInfeccion * S[-1] * I[-1]) / N
+        nuevos_infectados = tasaRecuperacion * I[-1]
+        nuevos_fallecidos = tasaMortalidad * I[-1]
 
-        S.append(nuevo_S)
-        I.append(nuevo_I)
-        R.append(nuevo_R)
+        # Evitar valores negativos
+        nuevos_expuestos = max(nuevos_expuestos, 0)
+        nuevos_infectados = max(nuevos_infectados, 0)
+        nuevos_fallecidos = max(nuevos_fallecidos, 0)
 
-    return np.array(S), np.array(I), np.array(R)
+        S_actual = max(S[-1] - nuevos_expuestos, 0)
+        E_actual = max(E[-1] + nuevos_expuestos - nuevos_infectados, 0)
+        I_actual = max(I[-1] + nuevos_infectados - nuevos_infectados, 0)
+        R_actual = max(R[-1] + nuevos_infectados, 0)
+        D_actual = max(D[-1] + nuevos_fallecidos, 0)
+
+        S.append(S_actual)
+        E.append(E_actual)
+        I.append(I_actual)
+        R.append(R_actual)
+        D.append(D_actual)
+
+    return np.array(S), np.array(E), np.array(I), np.array(R), np.array(D)

@@ -1,0 +1,77 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f7fc;
+    color: #352a2a;
+}
+
+header {
+    background-color: #c2c2c2; /* Color oscuro profesional */
+    color: white;
+}
+
+.header-title {
+    background-color: #7ab186 ;
+    border-radius: 10px;
+    padding: 30px;
+}
+
+.navbar {
+    background-color: #7ab186; /* Fondo oscuro para la navbar */
+    padding: 5px;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.navbar-nav .nav-link {
+    color: #fffefe !important; /* Color claro de texto */
+    font-weight: 500;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #ffc107 !important; /* Color dorado al pasar el mouse */
+}
+
+.btn-primary {
+    background-color: #17a2b8; /* Color para los botones */
+    border: none;
+}
+
+.btn-outline-primary {
+    border-color: #17a2b8;
+    color: #17a2b8;
+}
+
+.footer {
+    background-color: #343a40;
+    color: white;
+    padding: 20px;
+    font-size: 14px;
+}
+
+footer a {
+    color: #ffc107;
+}
+
+.form-control {
+    border-radius: 10px;
+}
+
+.container-fluid {
+    margin-top: 30px;
+}
+
+#chart {
+    margin-top: 50px;
+    max-width: 100%;
+    height: 400px;
+    background-color: #fff;
+    border-radius: 8px;
+}
+
+.contact-section {
+    background-color: #f9f9f9;
+    padding: 40px 0;
+}

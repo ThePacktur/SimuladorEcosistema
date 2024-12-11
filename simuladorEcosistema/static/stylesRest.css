@@ -1,0 +1,34 @@
+body {
+    background-color: #f4f7fa;
+    font-family: 'Arial', sans-serif;
+}
+.header-title {
+    background: #017cff;
+    color: white;
+    border-radius: 8px;
+}
+.chart-container {
+    border: 1px solid #ddd;
+    padding: 15px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.recommendations {
+    background: #eaf4ff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.recommendations h3 {
+    color: #017cff;
+}
+.recommendations h4 {
+    color:#017cff;
+}
+
+footer {
+    font-size: 0.9rem;
+    color: #555;
+}
