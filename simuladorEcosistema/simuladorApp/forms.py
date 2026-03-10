@@ -1,50 +1,73 @@
 from django import forms
+
 from .models import ParametrosSimulacion
 
+
 class ParametrosSimulacionForm(forms.ModelForm):
-   
     class Meta:
         model = ParametrosSimulacion
-        fields = ['tasaInfeccion', 'tasaRecuperacion', 'tasaMortalidad', 'duracionPromedioEnfermedad', 'poblacionInicial', 'infectadosInicial', 'tiempoSimulacion']
+        fields = [
+            "tasaInfeccion",
+            "tasaRecuperacion",
+            "tasaMortalidad",
+            "duracionPromedioEnfermedad",
+            "poblacionInicial",
+            "infectadosInicial",
+            "tiempoSimulacion",
+        ]
         widgets = {
-            'tasaInfeccion': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
-            'tasaRecuperacion': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
-            'tasaMortalidad': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
-            'duracionPromedioEnfermedad': forms.NumberInput(attrs={'class': 'form-control'}),
-            'poblacionInicial': forms.NumberInput(attrs={'class': 'form-control'}),
-            'infectadosInicial': forms.NumberInput(attrs={'class': 'form-control'}),
-            'tiempoSimulacion': forms.NumberInput(attrs={'class': 'form-control'}),
+            "tasaInfeccion": forms.NumberInput(attrs={"class": "form-control", "step": "0.01", "min": "0", "max": "1"}),
+            "tasaRecuperacion": forms.NumberInput(attrs={"class": "form-control", "step": "0.01", "min": "0", "max": "1"}),
+            "tasaMortalidad": forms.NumberInput(attrs={"class": "form-control", "step": "0.01", "min": "0", "max": "1"}),
+            "duracionPromedioEnfermedad": forms.NumberInput(attrs={"class": "form-control", "min": "1"}),
+            "poblacionInicial": forms.NumberInput(attrs={"class": "form-control", "min": "1"}),
+            "infectadosInicial": forms.NumberInput(attrs={"class": "form-control", "min": "1"}),
+            "tiempoSimulacion": forms.NumberInput(attrs={"class": "form-control", "min": "1"}),
         }
 
+    def _validar_tasa(self, campo, etiqueta):
+        tasa = self.cleaned_data.get(campo)
+        if tasa is None:
+            return tasa
+        if not 0 <= tasa <= 1:
+            raise forms.ValidationError(f"La {etiqueta} debe estar entre 0 y 1.")
+        return tasa
+
     def clean_tasaInfeccion(self):
-        tasa_infeccion = self.cleaned_data.get('tasaInfeccion')
-        if tasa_infeccion < 0:
-            raise forms.ValidationError("La tasa de infección no puede ser negativa.")
-        return tasa_infeccion
+        return self._validar_tasa("tasaInfeccion", "tasa de infección")
 
     def clean_tasaRecuperacion(self):
-        tasa_recuperacion = self.cleaned_data.get('tasaRecuperacion')
-        if tasa_recuperacion < 0:
-            raise forms.ValidationError("La tasa de recuperación no puede ser negativa.")
-        return tasa_recuperacion
+        return self._validar_tasa("tasaRecuperacion", "tasa de recuperación")
 
-    def clean_poblacionInicial(self):
-        poblacion_inicial = self.cleaned_data.get('poblacionInicial')
-        if poblacion_inicial <= 0:
-            raise forms.ValidationError("La población inicial debe ser un número positivo.")
-        return poblacion_inicial
+    def clean_tasaMortalidad(self):
+        return self._validar_tasa("tasaMortalidad", "tasa de mortalidad")
 
-    def clean_infectadosInicial(self):
-        infectados_inicial = self.cleaned_data.get('infectadosInicial')
-        poblacion_inicial = self.cleaned_data.get('poblacionInicial')
-        if infectados_inicial < 0:
-            raise forms.ValidationError("El número de infectados iniciales no puede ser negativo.")
-        if poblacion_inicial and infectados_inicial >= poblacion_inicial:
-            raise forms.ValidationError("El número de infectados iniciales no puede ser igual o superior a la población inicial.")
-        return infectados_inicial
+    def clean(self):
+        cleaned_data = super().clean()
+        poblacion = cleaned_data.get("poblacionInicial")
+        infectados = cleaned_data.get("infectadosInicial")
+        duracion = cleaned_data.get("duracionPromedioEnfermedad")
 
-    def clean_tiempoSimulacion(self):
-        tiempo_simulacion = self.cleaned_data.get('tiempoSimulacion')
-        if tiempo_simulacion <= 0:
-            raise forms.ValidationError("El tiempo de simulación debe ser un número positivo.")
-        return tiempo_simulacion
+        if poblacion is not None and poblacion <= 0:
+            self.add_error("poblacionInicial", "La población inicial debe ser mayor que cero.")
+
+        if infectados is not None and infectados <= 0:
+            self.add_error("infectadosInicial", "Los infectados iniciales deben ser mayores que cero.")
+
+        if (
+            poblacion is not None
+            and infectados is not None
+            and infectados >= poblacion
+        ):
+            self.add_error(
+                "infectadosInicial",
+                "El número de infectados iniciales debe ser menor que la población inicial.",
+            )
+
+        if duracion is not None and duracion <= 0:
+            self.add_error(
+                "duracionPromedioEnfermedad",
+                "La duración promedio de enfermedad debe ser mayor que cero.",
+            )
+
+        return cleaned_data
