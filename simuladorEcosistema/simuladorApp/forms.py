@@ -15,6 +15,15 @@ class ParametrosSimulacionForm(forms.ModelForm):
             "infectadosInicial",
             "tiempoSimulacion",
         ]
+        labels = {
+            "tasaInfeccion": "Tasa de infección",
+            "tasaRecuperacion": "Tasa de recuperación",
+            "tasaMortalidad": "Tasa de mortalidad",
+            "duracionPromedioEnfermedad": "Duración promedio de la enfermedad",
+            "poblacionInicial": "Población inicial",
+            "infectadosInicial": "Infectados iniciales",
+            "tiempoSimulacion": "Tiempo de simulación",
+        }
         widgets = {
             "tasaInfeccion": forms.NumberInput(attrs={"class": "form-control", "step": "0.01", "min": "0", "max": "1"}),
             "tasaRecuperacion": forms.NumberInput(attrs={"class": "form-control", "step": "0.01", "min": "0", "max": "1"}),
