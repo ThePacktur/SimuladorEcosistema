@@ -7,8 +7,10 @@ service cloud.firestore {
     }
     match /simulaciones/{simulationId} {
       allow create: if request.auth != null && request.resource.data.usuarioId == request.auth.uid;
-      allow read: if request.auth != null &&
-        (resource.data.usuarioId == request.auth.uid || request.auth.token.rol in ['docente', 'admin']);
+      allow read: if request.auth != null && (
+        resource.data.usuarioId == request.auth.uid ||
+        get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol in ['docente', 'admin']
+      );
       allow update, delete: if request.auth != null && resource.data.usuarioId == request.auth.uid;
     }
   }
