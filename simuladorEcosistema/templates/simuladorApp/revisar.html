@@ -1,0 +1,12 @@
+{% extends "simuladorApp/base.html" %}
+{% block title %}Revisión · LabSim{% endblock %}
+{% block content %}
+<div class="page-heading"><span class="eyebrow">REVISIÓN</span><h1>{{ simulation.nombreEscenario }}</h1><p>{{ simulation.enfermedad }} · creada por {{ simulation.usuarioNombre|default:"estudiante" }}</p></div>
+<div class="row g-3 mb-4">
+<div class="col-md-3"><div class="metric-card"><span>Día del pico</span><strong>{{ simulation.resultado.diaPico }}</strong></div></div>
+<div class="col-md-3"><div class="metric-card"><span>Máx. infectados</span><strong>{{ simulation.resultado.porcentajeInfectados }}%</strong></div></div>
+<div class="col-md-3"><div class="metric-card"><span>Máx. recuperados</span><strong>{{ simulation.resultado.porcentajeRecuperados }}%</strong></div></div>
+<div class="col-md-3"><div class="metric-card"><span>Máx. fallecidos</span><strong>{{ simulation.resultado.porcentajeFallecidos }}%</strong></div></div>
+</div>
+<div class="card app-card"><div class="card-body"><h2 class="h5">Evolución SEIRD</h2><img src="data:image/png;base64,{{ simulation.resultado.grafico }}" class="img-fluid rounded" alt="Resultado de simulación"></div></div>
+{% endblock %}
