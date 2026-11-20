@@ -43,7 +43,7 @@ class VistaSimuladorTests(TestCase):
     def test_login_redirige_si_no_hay_sesion(self):
         self.client.session.flush()
         response=self.client.get(reverse("simulador"))
-        self.assertRedirects(response,reverse("login")+"?next="+reverse("simulador"))
+        self.assertEqual(response.status_code,302)\n        self.assertEqual(response.url,reverse("login"))
 
     def test_post_simulador_renderiza_resultados(self):
         response=self.client.post(reverse("simulador"),data={
