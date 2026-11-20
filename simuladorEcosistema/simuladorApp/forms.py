@@ -1,73 +1,105 @@
 from django import forms
 
-from .models import ParametrosSimulacion
+
+VIRUS_CHOICES = [
+    ("Virus respiratorio sincicial (VRS)", "Virus respiratorio sincicial (VRS)"),
+    ("Influenza", "Influenza"),
+    ("COVID-19", "COVID-19"),
+    ("Sarampión", "Sarampión"),
+    ("Otro", "Otro"),
+]
 
 
-class ParametrosSimulacionForm(forms.ModelForm):
-    class Meta:
-        model = ParametrosSimulacion
-        fields = [
-            "tasaInfeccion",
-            "tasaRecuperacion",
-            "tasaMortalidad",
-            "duracionPromedioEnfermedad",
-            "poblacionInicial",
-            "infectadosInicial",
-            "tiempoSimulacion",
-        ]
-        widgets = {
-            "tasaInfeccion": forms.NumberInput(attrs={"class": "form-control", "step": "0.01", "min": "0", "max": "1"}),
-            "tasaRecuperacion": forms.NumberInput(attrs={"class": "form-control", "step": "0.01", "min": "0", "max": "1"}),
-            "tasaMortalidad": forms.NumberInput(attrs={"class": "form-control", "step": "0.01", "min": "0", "max": "1"}),
-            "duracionPromedioEnfermedad": forms.NumberInput(attrs={"class": "form-control", "min": "1"}),
-            "poblacionInicial": forms.NumberInput(attrs={"class": "form-control", "min": "1"}),
-            "infectadosInicial": forms.NumberInput(attrs={"class": "form-control", "min": "1"}),
-            "tiempoSimulacion": forms.NumberInput(attrs={"class": "form-control", "min": "1"}),
-        }
-
-    def _validar_tasa(self, campo, etiqueta):
-        tasa = self.cleaned_data.get(campo)
-        if tasa is None:
-            return tasa
-        if not 0 <= tasa <= 1:
-            raise forms.ValidationError(f"La {etiqueta} debe estar entre 0 y 1.")
-        return tasa
-
-    def clean_tasaInfeccion(self):
-        return self._validar_tasa("tasaInfeccion", "tasa de infección")
-
-    def clean_tasaRecuperacion(self):
-        return self._validar_tasa("tasaRecuperacion", "tasa de recuperación")
-
-    def clean_tasaMortalidad(self):
-        return self._validar_tasa("tasaMortalidad", "tasa de mortalidad")
+class ParametrosSimulacionForm(forms.Form):
+    nombreEscenario = forms.CharField(
+        label="Nombre del escenario",
+        max_length=80,
+        initial="Escenario de simulación",
+        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "Ej: VRS invierno 2026"}),
+    )
+    virus = forms.ChoiceField(
+        label="Virus o enfermedad",
+        choices=VIRUS_CHOICES,
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )
+    tasaInfeccion = forms.FloatField(
+        label="Tasa de infección",
+        min_value=0,
+        max_value=1,
+        widget=forms.NumberInput(attrs={"class": "form-control", "step": "0.01"}),
+    )
+    tasaRecuperacion = forms.FloatField(
+        label="Tasa de recuperación",
+        min_value=0,
+        max_value=1,
+        widget=forms.NumberInput(attrs={"class": "form-control", "step": "0.01"}),
+    )
+    tasaMortalidad = forms.FloatField(
+        label="Tasa de mortalidad",
+        min_value=0,
+        max_value=1,
+        widget=forms.NumberInput(attrs={"class": "form-control", "step": "0.001"}),
+    )
+    duracionPromedioEnfermedad = forms.IntegerField(
+        label="Duración promedio de enfermedad (días)",
+        min_value=1,
+        widget=forms.NumberInput(attrs={"class": "form-control", "min": "1"}),
+    )
+    poblacionInicial = forms.IntegerField(
+        label="Población inicial",
+        min_value=1,
+        widget=forms.NumberInput(attrs={"class": "form-control", "min": "1"}),
+    )
+    infectadosInicial = forms.IntegerField(
+        label="Infectados iniciales",
+        min_value=1,
+        widget=forms.NumberInput(attrs={"class": "form-control", "min": "1"}),
+    )
+    tiempoSimulacion = forms.IntegerField(
+        label="Tiempo de simulación (días)",
+        min_value=1,
+        max_value=3650,
+        widget=forms.NumberInput(attrs={"class": "form-control", "min": "1", "max": "3650"}),
+    )
+    edadMin = forms.IntegerField(
+        label="Edad mínima",
+        min_value=0,
+        max_value=120,
+        initial=0,
+        widget=forms.NumberInput(attrs={"class": "form-control", "min": "0", "max": "120"}),
+    )
+    edadMax = forms.IntegerField(
+        label="Edad máxima",
+        min_value=0,
+        max_value=120,
+        initial=100,
+        widget=forms.NumberInput(attrs={"class": "form-control", "min": "0", "max": "120"}),
+    )
+    porcentajeAsintomaticos = forms.FloatField(
+        label="Porcentaje estimado de casos asintomáticos",
+        min_value=0,
+        max_value=100,
+        initial=20,
+        widget=forms.NumberInput(attrs={"class": "form-control", "step": "1", "min": "0", "max": "100"}),
+    )
 
     def clean(self):
-        cleaned_data = super().clean()
-        poblacion = cleaned_data.get("poblacionInicial")
-        infectados = cleaned_data.get("infectadosInicial")
-        duracion = cleaned_data.get("duracionPromedioEnfermedad")
+        cleaned = super().clean()
+        poblacion = cleaned.get("poblacionInicial")
+        infectados = cleaned.get("infectadosInicial")
+        edad_min = cleaned.get("edadMin")
+        edad_max = cleaned.get("edadMax")
 
-        if poblacion is not None and poblacion <= 0:
-            self.add_error("poblacionInicial", "La población inicial debe ser mayor que cero.")
+        if poblacion and infectados and infectados >= poblacion:
+            self.add_error("infectadosInicial", "Los infectados iniciales deben ser menores que la población.")
 
-        if infectados is not None and infectados <= 0:
-            self.add_error("infectadosInicial", "Los infectados iniciales deben ser mayores que cero.")
+        if edad_min is not None and edad_max is not None and edad_min > edad_max:
+            self.add_error("edadMin", "La edad mínima no puede ser mayor que la edad máxima.")
 
-        if (
-            poblacion is not None
-            and infectados is not None
-            and infectados >= poblacion
-        ):
-            self.add_error(
-                "infectadosInicial",
-                "El número de infectados iniciales debe ser menor que la población inicial.",
-            )
+        tasas = ["tasaInfeccion", "tasaRecuperacion", "tasaMortalidad"]
+        for campo in tasas:
+            value = cleaned.get(campo)
+            if value is not None and not 0 <= value <= 1:
+                self.add_error(campo, "El valor debe estar entre 0 y 1.")
 
-        if duracion is not None and duracion <= 0:
-            self.add_error(
-                "duracionPromedioEnfermedad",
-                "La duración promedio de enfermedad debe ser mayor que cero.",
-            )
-
-        return cleaned_data
+        return cleaned
