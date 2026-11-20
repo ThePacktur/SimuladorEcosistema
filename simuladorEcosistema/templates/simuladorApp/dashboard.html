@@ -1,0 +1,16 @@
+{% extends "simuladorApp/base.html" %}
+{% block title %}Inicio · LabSim{% endblock %}
+{% block content %}
+<div class="hero-card mb-4"><div><span class="eyebrow">SIMULACIÓN EPIDEMIOLÓGICA</span><h1 class="display-6 fw-bold">Hola, {{ nombre }}</h1><p class="mb-0">Configura escenarios, ejecuta modelos SEIRD y revisa sus resultados.</p></div><a href="{% url 'simulador' %}" class="btn btn-light btn-lg">+ Nueva simulación</a></div>
+<div class="row g-3 mb-4">
+<div class="col-md-4"><div class="metric-card"><span>Rol</span><strong>{{ rol|capfirst }}</strong></div></div>
+<div class="col-md-4"><div class="metric-card"><span>Simulaciones disponibles</span><strong>{{ simulaciones|length }}</strong></div></div>
+<div class="col-md-4"><div class="metric-card"><span>Persistencia</span><strong>{% if firebase_available %}Firebase{% else %}No configurado{% endif %}</strong></div></div>
+</div>
+<div class="card app-card"><div class="card-body"><h2 class="h4">{% if rol == 'estudiante' %}Mis simulaciones{% else %}Simulaciones de estudiantes{% endif %}</h2>
+{% if simulaciones %}<div class="table-responsive"><table class="table align-middle"><thead><tr><th>Escenario</th><th>Enfermedad</th><th>Población</th><th>Pico</th><th>Fecha</th><th></th></tr></thead><tbody>
+{% for s in simulaciones %}<tr><td>{{ s.nombreEscenario }}</td><td>{{ s.enfermedad }}</td><td>{{ s.poblacion }}</td><td>{{ s.resultado.diaPico }} días</td><td>{{ s.fecha|slice:":10" }}</td><td><a class="btn btn-sm btn-outline-primary" href="{% url 'revisar_simulacion' s.id %}">Ver</a></td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<div class="empty-state"><h3 class="h5">Todavía no hay simulaciones</h3><p>Ejecuta tu primer escenario para comenzar.</p><a href="{% url 'simulador' %}" class="btn btn-primary">Crear escenario</a></div>{% endif %}
+</div></div>
+{% endblock %}
