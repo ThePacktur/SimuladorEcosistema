@@ -1,6 +1,6 @@
 from django.urls import path
-from . import views
-from . import auth_views
+
+from . import auth_views, views
 
 urlpatterns = [
     path("", views.dashboard, name="dashboard"),
@@ -12,5 +12,6 @@ urlpatterns = [
     path("registro/", auth_views.register_view, name="registro"),
     path("api/login/firebase/", auth_views.firebase_login, name="firebase_login"),
     path("api/registro/firebase/", auth_views.firebase_register, name="firebase_register"),
+    path("api/perfil/firebase/", auth_views.firebase_profile, name="firebase_profile"),
     path("logout/", auth_views.logout_view, name="logout"),
 ]
