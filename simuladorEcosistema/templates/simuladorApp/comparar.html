@@ -1,0 +1,11 @@
+{% extends "simuladorApp/base.html" %}
+{% block title %}Comparar · LabSim{% endblock %}
+{% block content %}
+<div class="page-heading"><span class="eyebrow">ANÁLISIS</span><h1>Comparar simulaciones</h1><p>Selecciona hasta cuatro escenarios para contrastar sus indicadores.</p></div>
+<div class="card app-card mb-4"><div class="card-body">
+<form method="get"><div class="table-responsive"><table class="table align-middle"><thead><tr><th></th><th>Escenario</th><th>Enfermedad</th><th>Población</th><th>Pico</th><th>% infectados</th></tr></thead><tbody>
+{% for s in simulaciones %}<tr><td><input type="checkbox" name="id" value="{{ s.id }}" {% if s.id in request.GET.id %}checked{% endif %}></td><td>{{ s.nombreEscenario }}</td><td>{{ s.enfermedad }}</td><td>{{ s.poblacion }}</td><td>{{ s.resultado.diaPico }}</td><td>{{ s.resultado.porcentajeInfectados }}%</td></tr>{% empty %}<tr><td colspan="6">No hay simulaciones disponibles.</td></tr>{% endfor %}
+</tbody></table></div><button class="btn btn-primary" type="submit">Comparar seleccionadas</button></form>
+</div></div>
+{% if comparadas %}<div class="row g-3">{% for s in comparadas %}<div class="col-md-6 col-xl-3"><div class="card app-card h-100"><div class="card-body"><h3 class="h5">{{ s.nombreEscenario }}</h3><p class="text-muted">{{ s.enfermedad }}</p><hr><p><strong>Día del pico:</strong> {{ s.resultado.diaPico }}</p><p><strong>Máx. infectados:</strong> {{ s.resultado.porcentajeInfectados }}%</p><p><strong>Máx. recuperados:</strong> {{ s.resultado.porcentajeRecuperados }}%</p><p><strong>Máx. fallecidos:</strong> {{ s.resultado.porcentajeFallecidos }}%</p></div></div></div>{% endfor %}</div>{% endif %}
+{% endblock %}

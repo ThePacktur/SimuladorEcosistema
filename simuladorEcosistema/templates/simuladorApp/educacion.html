@@ -1,0 +1,6 @@
+{% extends "simuladorApp/base.html" %}
+{% block title %}Prevención · LabSim{% endblock %}
+{% block content %}
+<div class="page-heading"><span class="eyebrow">MATERIAL EDUCATIVO</span><h1>Prevención y aislamiento</h1><p>Contenido general para apoyar el aprendizaje. Contrasta siempre con las normas oficiales vigentes.</p></div>
+<div class="row g-3">{% for c in contenidos %}<div class="col-lg-4"><div class="card app-card h-100"><div class="card-body"><h2 class="h5">{{ c.titulo }}</h2><p>{{ c.texto }}</p></div></div></div>{% endfor %}</div>
+{% endblock %}

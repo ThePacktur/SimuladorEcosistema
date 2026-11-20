@@ -1,15 +1,14 @@
 """
 Django settings for simuladorEcosistema project.
 """
-
 from pathlib import Path
 import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-secret-key")
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-secret-key-change-me")
 DEBUG = os.getenv("DJANGO_DEBUG", "True").lower() == "true"
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "*").split(",")
+ALLOWED_HOSTS = [h.strip() for h in os.getenv("DJANGO_ALLOWED_HOSTS", "*").split(",") if h.strip()]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -51,27 +50,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "simuladorEcosistema.wsgi.application"
 
-# Usa SQLite por defecto para facilitar ejecución local.
-# Si USE_MYSQL=True, toma credenciales desde variables de entorno.
-USE_MYSQL = os.getenv("USE_MYSQL", "False").lower() == "true"
-if USE_MYSQL:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.mysql",
-            "NAME": os.getenv("MYSQL_DATABASE", "ecosistema"),
-            "USER": os.getenv("MYSQL_USER", "root"),
-            "PASSWORD": os.getenv("MYSQL_PASSWORD", ""),
-            "HOST": os.getenv("MYSQL_HOST", "127.0.0.1"),
-            "PORT": os.getenv("MYSQL_PORT", "3306"),
-        }
+# Firebase/Firestore es la persistencia principal de las simulaciones.
+# SQLite queda solamente como apoyo para las migraciones internas de Django.
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -80,11 +66,33 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-LANGUAGE_CODE = "es-es"
-TIME_ZONE = "UTC"
+LANGUAGE_CODE = "es-cl"
+TIME_ZONE = os.getenv("TIME_ZONE", "America/Santiago")
 USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Firebase Admin SDK
+FIREBASE_ENABLED = os.getenv("FIREBASE_ENABLED", "True").lower() == "true"
+FIREBASE_PROJECT_ID = os.getenv("FIREBASE_PROJECT_ID", "")
+FIREBASE_SERVICE_ACCOUNT_JSON = os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON", "")
+FIREBASE_SERVICE_ACCOUNT_B64 = os.getenv("FIREBASE_SERVICE_ACCOUNT_B64", "")
+
+# Firebase Web SDK. Estos datos NO son secretos.
+FIREBASE_WEB_API_KEY = os.getenv("FIREBASE_WEB_API_KEY", "")
+FIREBASE_WEB_AUTH_DOMAIN = os.getenv("FIREBASE_WEB_AUTH_DOMAIN", "")
+FIREBASE_WEB_PROJECT_ID = os.getenv("FIREBASE_WEB_PROJECT_ID", FIREBASE_PROJECT_ID)
+FIREBASE_WEB_STORAGE_BUCKET = os.getenv("FIREBASE_WEB_STORAGE_BUCKET", "")
+FIREBASE_WEB_MESSAGING_SENDER_ID = os.getenv("FIREBASE_WEB_MESSAGING_SENDER_ID", "")
+FIREBASE_WEB_APP_ID = os.getenv("FIREBASE_WEB_APP_ID", "")
+
+# Seguridad recomendada para producción
+if not DEBUG:
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = "DENY"
+    SECURE_REFERRER_POLICY = "same-origin"
